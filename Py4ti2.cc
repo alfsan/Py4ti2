@@ -37,6 +37,8 @@ static PyObject * Py4ti2Error;
 
 std::string whathappened;
 
+#ifndef _4ti2_GMP_
+
 IntegerType mod( IntegerType a, IntegerType b )
 {
     return ( a % b + b) % b;
@@ -227,11 +229,27 @@ bool solve_by_ideal_computations( _4ti2_::VectorArray& A, int torsion,
     }
     return vale;
 }
+#endif
+
+// Conversion routine PyUnicodeToString from 
+// PyNormaliz module by Sebastian Gutsche.
+std::string PyUnicodeToString( PyObject* in ){
+#if PY_MAJOR_VERSION >= 3
+    std::string out = "";
+    int length = PyUnicode_GET_SIZE( in );
+    for( int i = 0; i < length; ++i )
+        out += PyUnicode_READ_CHAR( in, i );
+    return out;
+#else
+    char* out = PyString_AsString( in );
+    return std::string(out);
+#endif
+}
 
 // Conversion routine PyLongToIntegerType from PyLongToNmz in 
 // PyNormaliz module by Sebastian Gutsche.
 
-#ifdef _4ti2_WITH_GMP_
+#ifdef _4ti2_GMP_
 // IntegerType is of type mpz_class
 bool PyLongToIntegerType( PyObject * in, IntegerType& out ){
   PyObject * in_as_string = PyObject_Str( in );
@@ -245,7 +263,7 @@ bool PyLongToIntegerType( PyObject * in, IntegerType& out ){
 
 PyObject *IntegerTypeToPyLong( mpz_class input )
 {
-    string mpz_as_string = input.get_str();
+    std::string mpz_as_string = input.get_str();
     char *mpz_as_c_string = const_cast<char*>( mpz_as_string.c_str() );
     char *pend;
     PyObject *ret_val = PyLong_FromString( mpz_as_c_string, &pend, 10 );
@@ -330,6 +348,7 @@ PyObject *VectorToPyIntList( _4ti2_::Vector& v )
 PyObject *_4ti2matrixToPyIntListList( _4ti2_matrix *m )
 {
     const int nrows = _4ti2_matrix_get_num_rows( m );
+    
     PyObject *intlstlst = PyList_New( nrows );
 
     const int ncols = _4ti2_matrix_get_num_cols( m );
@@ -340,6 +359,7 @@ PyObject *_4ti2matrixToPyIntListList( _4ti2_matrix *m )
     _4ti2_int64_t value;
 #elif defined(_4ti2_HAVE_GMP)
     mpz_class value;
+    mpz_ptr ptrvalue = value.get_mpz_t();
 #endif
     for ( int i = 0; i < nrows; ++i ) {
         PyObject *intlst = PyList_New( ncols );
@@ -349,7 +369,7 @@ PyObject *_4ti2matrixToPyIntListList( _4ti2_matrix *m )
 #elif defined(_4ti2_INT64_)
             _4ti2_matrix_get_entry_int64_t(m, i, j, &value);
 #elif defined(_4ti2_HAVE_GMP)
-            _4ti2_matrix_get_entry_mpz_ptr(m, i, j, &value);
+            _4ti2_matrix_get_entry_mpz_ptr(m, i, j, ptrvalue);
 #endif
             PyList_SetItem( intlst, j, IntegerTypeToPyLong( value ) );
         }
@@ -454,6 +474,7 @@ static bool PyIntListListTo4ti2matrix( PyObject *input, _4ti2_state* state,
     _4ti2_int64_t value;
 #elif defined(_4ti2_HAVE_GMP)
     mpz_class value;
+    mpz_ptr ptrvalue = value.get_mpz_t();
 #endif
 
     for (int i = 0; i < nrows; ++i ) {
@@ -473,7 +494,7 @@ static bool PyIntListListTo4ti2matrix( PyObject *input, _4ti2_state* state,
 #elif defined(_4ti2_INT64_)
             _4ti2_matrix_set_entry_int64_t(*outm, i, j, value);
 #elif defined(_4ti2_HAVE_GMP)
-            _4ti2_matrix_set_entry_mpz_ptr(*outm, i, j, value);
+            _4ti2_matrix_set_entry_mpz_ptr(*outm, i, j, ptrvalue);
 #endif
         }
     }
@@ -509,6 +530,7 @@ static bool PyIntListTo4ti2matrix( PyObject *input, _4ti2_state* state,
     _4ti2_int64_t value;
 #elif defined(_4ti2_HAVE_GMP)
     mpz_class value;
+    mpz_ptr ptrvalue = value.get_mpz_t();
 #endif
 
     for (int j = 0; j < length; ++j) {
@@ -522,30 +544,17 @@ static bool PyIntListTo4ti2matrix( PyObject *input, _4ti2_state* state,
 #elif defined(_4ti2_INT64_)
         _4ti2_matrix_set_entry_int64_t(*outm, 0, j, value);
 #elif defined(_4ti2_HAVE_GMP)
-        _4ti2_matrix_set_entry_mpz_ptr(*outm, 0, j, value);
+        _4ti2_matrix_set_entry_mpz_ptr(*outm, 0, j, ptrvalue);
 #endif
     }
     return true;
 }
 
-// Conversion routine PyUnicodeToString from 
-// PyNormaliz module by Sebastian Gutsche.
-std::string PyUnicodeToString( PyObject* in ){
-#if PY_MAJOR_VERSION >= 3
-    std::string out = "";
-    int length = PyUnicode_GET_SIZE( in );
-    for( int i = 0; i < length; ++i )
-        out += PyUnicode_READ_CHAR( in, i );
-    return out;
-#else
-    char* out = PyString_AsString( in );
-    return std::string(out);
-#endif
-}
-
 /*
  * Python module stuff
  */
+
+#ifndef _4ti2_HAVE_GMP
 
 static PyObject *_4ti2ParticularSolution( PyObject *self, PyObject *args )
 {
@@ -580,6 +589,8 @@ static PyObject *_4ti2ParticularSolution( PyObject *self, PyObject *args )
     else 
         return PyList_New(0);
 }
+
+#endif
 
 struct _4ti2GroebnerBasisInput {
     _4ti2_::VectorArray *mat, *lat, *weights, *mar, *cost; 
@@ -687,14 +698,17 @@ static PyObject *_4ti2GroebnerBasis( PyObject *self, PyObject *args )
             }
         }
         else if (typeofinp.compare("weightsmax") == 0) {
-            data.weightsmax = new _4ti2_::Vector(dim);
-            if ( !PyIntListToVector(eol2, *data.weightsmax) ) {
+            _4ti2_::VectorArray *auxvector = new _4ti2_::VectorArray();
+            if ( !PyIntListListToVectorArray(eol2, *auxvector) ) {
                 data.clearall();
                 std::string pref = "\'weightsmax\' argument: ";
                 whathappened = pref + whathappened;
                 PyErr_SetString(Py4ti2Error, whathappened.c_str());
                 return NULL;
             }
+            data.weightsmax = new _4ti2_::Vector(auxvector->get_size());
+            for(int i = 0; i < auxvector->get_size(); ++i)
+                (*data.weightsmax)[i] = (*auxvector)[0][i];
         }
         else if (typeofinp.compare("zsol") == 0) {
             data.zsol = new _4ti2_::Vector(dim);
@@ -811,8 +825,9 @@ static PyObject *_4ti2Graver( PyObject *self, PyObject *args )
     graver_api = _4ti2_graver_create_state(_4ti2_PREC_INT_32);
 #elif defined(_4ti2_INT64_)
     graver_api = _4ti2_graver_create_state(_4ti2_PREC_INT_64);
+#elif defined(_4ti2_GMP_)
+    graver_api = _4ti2_graver_create_state(_4ti2_PREC_INT_ARB);
 #endif
-     PySys_WriteStdout( "number of arguments %i ", nargs / 2);
     for (int i = 0; i < nargs / 2; ++i) {
         PyObject *eol1 = PyTuple_GetItem(args, 2*i);
         if ( !string_check(eol1) ) {
@@ -893,31 +908,23 @@ static PyObject *_4ti2Graver( PyObject *self, PyObject *args )
         return NULL;
     }
     
-    PyObject *result = PyTuple_New( 4 );
+//    PyObject *result = PyTuple_New( 4 );
 
-    int elresul = 0;
+//    int elresul = 0;
 
     _4ti2_matrix* zhom_matrix;
     _4ti2_state_get_matrix(graver_api, "zhom", &zhom_matrix);
-    PyObject *zhom_list;
+    PyObject *zhom_list = NULL;
     if ( zhom_matrix != 0 ) {
        zhom_list = _4ti2matrixToPyIntListList( zhom_matrix );
-       PyTuple_SetItem( result, elresul++, PyUnicode_FromString("zhom") );
-       PyTuple_SetItem( result, elresul++, zhom_list );
+//       PyTuple_SetItem( result, elresul++, PyUnicode_FromString("zhom") );
+//       PyTuple_SetItem( result, elresul, zhom_list );
     }
 
-    _4ti2_matrix* zfree_matrix;
-    _4ti2_state_get_matrix(graver_api, "zfree", &zfree_matrix);
-    PyObject *zfree_list = 0;
-    if (zfree_matrix != 0) {
-        zfree_list = _4ti2matrixToPyIntListList( zfree_matrix );
-        PyTuple_SetItem( result, elresul++, PyUnicode_FromString("zfree") );
-        PyTuple_SetItem( result, elresul, zfree_list );
-    }
-    
     _4ti2_state_delete( graver_api );
 
-    return result;
+    return zhom_list;
+//    return result;
 }
 
 static PyObject *_4ti2Hilbert( PyObject *self, PyObject *args )
@@ -931,13 +938,12 @@ static PyObject *_4ti2Hilbert( PyObject *self, PyObject *args )
     
     _4ti2_state *hilbert_api;
     _4ti2_matrix *matlat, *rel, *sign, *ub;
-    char quiet[] = "-q";
 #ifdef _4ti2_INT32_
-    char prec[] = "--precision=32";
     hilbert_api = _4ti2_hilbert_create_state(_4ti2_PREC_INT_32);
 #elif defined(_4ti2_INT64_)
-    char prec[] = "--precision=64";
     hilbert_api = _4ti2_hilbert_create_state(_4ti2_PREC_INT_64);
+#elif defined(_4ti2_GMP_)
+    hilbert_api = _4ti2_hilbert_create_state(_4ti2_PREC_INT_ARB);
 #endif
 //     PySys_WriteStdout( "number of arguments %i ", nargs / 2);
     for (int i = 0; i < nargs / 2; ++i) {
@@ -1007,11 +1013,9 @@ static PyObject *_4ti2Hilbert( PyObject *self, PyObject *args )
     }
     
 
-    char **argv = new char* [3];
-    argv[1] = quiet;
-    argv[2] = prec;
+    char *argv[2] = { (char*)"hilbert", (char*)"-q" };
 
-    if ( _4ti2_state_set_options( hilbert_api, 3, argv) != _4ti2_OK ) {
+    if ( _4ti2_state_set_options( hilbert_api, 2, argv) != _4ti2_OK ) {
         _4ti2_state_delete( hilbert_api );
         PyErr_SetString(Py4ti2Error, "Unexpected error");
         return NULL;
@@ -1047,7 +1051,6 @@ static PyObject *_4ti2Hilbert( PyObject *self, PyObject *args )
     }
 
     _4ti2_state_delete( hilbert_api );
-    delete[] argv;
 
     return result;
 }
@@ -1063,13 +1066,12 @@ static PyObject *_4ti2Zsolve( PyObject *self, PyObject *args )
     
     _4ti2_state *zsolve_api;
     _4ti2_matrix *matlat, *rhs, *rel, *sign, *ub, *lb;
-    char quiet[] = "-q";
 #ifdef _4ti2_INT32_
-    char prec[] = "--precision=32";
     zsolve_api = _4ti2_zsolve_create_state(_4ti2_PREC_INT_32);
 #elif defined(_4ti2_INT64_)
-    char prec[] = "--precision=64";
     zsolve_api = _4ti2_zsolve_create_state(_4ti2_PREC_INT_64);
+#elif defined(_4ti2_GMP_)
+    zsolve_api = _4ti2_zsolve_create_state(_4ti2_PREC_INT_ARB);
 #endif
 //     PySys_WriteStdout( "number of arguments %i ", nargs / 2);
     for (int i = 0; i < nargs / 2; ++i) {
@@ -1162,12 +1164,9 @@ static PyObject *_4ti2Zsolve( PyObject *self, PyObject *args )
         }
     }
     
+    char *argv[2] = { (char*)"zsolve", (char*)"-q" };
 
-    char **argv = new char* [3];
-    argv[1] = quiet;
-    argv[2] = prec;
-
-    if ( _4ti2_state_set_options( zsolve_api, 3, argv) != _4ti2_OK ) {
+    if ( _4ti2_state_set_options( zsolve_api, 2, argv) != _4ti2_OK ) {
         _4ti2_state_delete( zsolve_api );
         PyErr_SetString(Py4ti2Error, "Unexpected error");
         return NULL;
@@ -1210,7 +1209,6 @@ static PyObject *_4ti2Zsolve( PyObject *self, PyObject *args )
     }
 
     _4ti2_state_delete( zsolve_api );
-    delete[] argv;
 
     return result;
 }
@@ -1227,8 +1225,10 @@ static struct module_state _state;
 #endif
 
 static PyMethodDef Py4ti2Methods[] = {
+#ifndef _4ti2_HAVE_GMP
     {"solve", (PyCFunction)_4ti2ParticularSolution, METH_VARARGS, 
         "Computes a particular solution of a linear diophantine equations system" },
+#endif
     {"groebner", (PyCFunction)_4ti2GroebnerBasis, METH_VARARGS, 
         "Computes a Groebner basis of the toric ideal of a matrix, or, more general, of the lattice ideal of a lattice." },
     {"hilbert", (PyCFunction)_4ti2Hilbert, METH_VARARGS,
@@ -1321,6 +1321,41 @@ extern "C" void initPy4ti2int64(void)
     PyObject *module = PyModule_Create(&moduledef);
 #else
     PyObject *module = Py_InitModule("Py4ti2int64", Py4ti2Methods);
+#endif
+
+    if (module == NULL)
+        INITERROR;
+    struct module_state *st = GETSTATE(module);
+
+    st->error = PyErr_NewException(const_cast<char*>("Py4ti2.INITError"), NULL, NULL);
+    if (st->error == NULL) {
+        Py_DECREF(module);
+        INITERROR;
+    }
+    
+    Py4ti2Error = PyErr_NewException(const_cast<char*>("4ti2.interface_error"), NULL, NULL );
+    Py_INCREF( Py4ti2Error );
+    
+    PyModule_AddObject( module, "error", Py4ti2Error );
+    
+#if PY_MAJOR_VERSION >= 3
+    return module;
+#endif
+}
+
+#if PY_MAJOR_VERSION >= 3
+
+PyMODINIT_FUNC PyInit_Py4ti2gmp(void)
+
+#else
+
+extern "C" void initPy4ti2gmp(void)
+#endif
+{
+#if PY_MAJOR_VERSION >= 3
+    PyObject *module = PyModule_Create(&moduledef);
+#else
+    PyObject *module = Py_InitModule("Py4ti2gmp", Py4ti2Methods);
 #endif
 
     if (module == NULL)
