@@ -11,6 +11,8 @@ By now, it is possible to use:
 * graver,
 * zsolve
 
+This software is inspired in Sebastian Gutsche's PyNormaliz (https://github.com/Normaliz/PyNormaliz) and reuses some of its data transformation code.
+
 ## Requirements and installation 
 
 First, 4ti2 is required with the groebner and zsolve components enabled. As well, GLPK (https://www.gnu.org/software/glpk/) is needed by 4ti2. Both library folders should be specified to build Py4ti2. 
@@ -18,7 +20,9 @@ First, 4ti2 is required with the groebner and zsolve components enabled. As well
 For GNU/Linux or OSX users, open a ``terminal window'', select Py4ti2 as working directory to introduce the make command to build the Py4ti2 modules.
 
 ```shell
+
 your_prompt$ cd WHERE_Py4ti2_IS_LOCATED
+
 ```
 
 The variables GLPK_DIR and FTI2_DIR are used to provide the path where GLPK and 4ti2 libraries are installed.
@@ -26,7 +30,10 @@ The variables GLPK_DIR and FTI2_DIR are used to provide the path where GLPK and 
 The make command to build and install the modules could be:
 
 ```shell
-prompt...Py4ti2$ GLPK_DIR=ROOT_OF_GLPK_INSTALLATION_HIERARCHY FTI2_DIR=ROOT_OF_4ti2_INSTALLATION_HIERARCHY make install
+
+prompt...Py4ti2$ GLPK_DIR=ROOT_OF_GLPK_INSTALLATION_HIERARCHY 
+FTI2_DIR=ROOT_OF_4ti2_INSTALLATION_HIERARCHY make install
+
 ```
 
 ## Documentation
@@ -176,5 +183,4 @@ r=zsolve(*problem)
 
 print([e for e in r])
 ['zinhom', [[0, 0, 0, 0, 0, 0, 0, 0, 0]], 'zhom', [[1, 0, 2, 2, 1, 0, 0, 2, 1], [2, 0, 1, 0, 1, 2, 1, 2, 0], [1, 2, 0, 0, 1, 2, 2, 0, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1], [0, 2, 1, 2, 1, 0, 1, 0, 2]], 'zfree', []]
-
 ```
