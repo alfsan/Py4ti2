@@ -31,8 +31,7 @@ The make command to build and install the modules could be:
 
 ```shell
 
-prompt...Py4ti2$ GLPK_DIR=ROOT_OF_GLPK_INSTALLATION_HIERARCHY 
-FTI2_DIR=ROOT_OF_4ti2_INSTALLATION_HIERARCHY make install
+prompt...Py4ti2$ GLPK_DIR=ROOT_OF_GLPK_INSTALLATION_HIERARCHY FTI2_DIR=ROOT_OF_4ti2_INSTALLATION_HIERARCHY make install
 
 ```
 
