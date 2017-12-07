@@ -2,7 +2,7 @@
 
 ## What is Py4ti2
 
-Py4ti2 provides an interface to some of the computations that 4ti2 (http://www.4ti2.de) does, using Python.
+Py4ti2 provides a Python interface to some of the computations performed by 4ti2 (http://www.4ti2.de).
 
 By now, it is possible to use:
 
@@ -13,24 +13,25 @@ By now, it is possible to use:
 
 ## Requirements and installation 
 
-First, 4ti2 is required with the groebner and zsolve components enabled. As well, GLPK (https://www.gnu.org/software/glpk/) is needed by 4ti2. Both libraries folders should be especified to make Py4ti2. 
+First, 4ti2 is required with the groebner and zsolve components enabled. As well, GLPK (https://www.gnu.org/software/glpk/) is needed by 4ti2. Both library folders should be specified to build Py4ti2. 
 
-For GNU/Linux or OSX users, open a ``terminal window'' select Py4ti2 as the working directory to issue the make command to build Py4ti2 modules.
+For GNU/Linux or OSX users, open a ``terminal window'', select Py4ti2 as working directory to introduce the make command to build the Py4ti2 modules.
 
-The variables GLPK_DIR and FTI2_DIR are used to provide to the path where glpk and 4ti2 libraries are installed.
+```shell
+your_prompt$ cd WHERE_Py4ti2_IS_LOCATED
+```
+
+The variables GLPK_DIR and FTI2_DIR are used to provide the path where GLPK and 4ti2 libraries are installed.
 
 The make command to build and install the modules could be:
 
-your_prompt$ GLPK_DIR=/ROOT/OF/GLPK/INSTALLATION/HIERARCHY FTI2_DIR=/ROOT/OF/4ti2/INSTALLATION/HIERARCHY make install
-
-If 4ti2 is compiled with GMP (https://gmplib.org/), setting the variable _4ti2_WITH_GMP to any value, Py4ti2 will be build to provide appropiate GMP computations with 4ti2. In this case, the make command could be:
-
-your_prompt$ _4ti2_WITH_GMP=yes GLPK_DIR=/ROOT/OF/GLPK/INSTALLATION/HIERARCHY FTI2_DIR=/ROOT/OF/4ti2/INSTALLATION/HIERARCHY make install
-
+```shell
+prompt...Py4ti2$ GLPK_DIR=ROOT_OF_GLPK_INSTALLATION_HIERARCHY FTI2_DIR=ROOT_OF_4ti2_INSTALLATION_HIERARCHY make install
+```
 
 ## Documentation
 
-It is recommended to read the manual page of the corresponding 4ti2 command to know which parameters are valid. Here, we show how to execute some examples present in the 4ti2 source tree folder _test_.
+It is recommended to read the manual page of the corresponding 4ti2 command to know which parameters are valid. Here, we show how to execute some examples that can be found in the 4ti2 source tree folder _test_.
 
 There is a module **Py4ti2int64** for 64 bit precision architecture, **Py4ti2int32** for 32 bits, and **Py4ti2gmp** for arbitrary precision computations.
 
