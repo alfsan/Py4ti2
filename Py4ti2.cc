@@ -17,6 +17,7 @@
 #include "groebner/DataType.h"
 #include "groebner/Minimize.h"
 #include "groebner/LatticeBasis.h"
+#include "groebner/Optimise.h"
 
 
 #include "4ti2/4ti2.h"
@@ -592,6 +593,176 @@ static PyObject *_4ti2ParticularSolution( PyObject *self, PyObject *args )
 
 #endif
 
+struct _4ti2MinimizeInput {
+    _4ti2_::VectorArray *mat, *lat, *cost; 
+    _4ti2_::Vector *sign, *zsol;
+
+    _4ti2MinimizeInput() {
+        mat = lat = cost = 0; 
+        sign = zsol = 0;
+    }
+
+    void clearall() {
+        if ( mat != 0 ) delete mat;
+        if ( lat != 0 ) delete lat;
+        if ( cost != 0 ) delete cost;
+        if ( sign != 0 ) delete sign;
+        if ( zsol != 0 ) delete zsol;
+    }
+};
+
+static PyObject *_4ti2Minimize( PyObject *self, PyObject *args )
+{
+    const int nargs = PyTuple_Size(args); 
+    
+    if ( nargs % 2 != 0 ) {
+        PyErr_SetString(Py4ti2Error, "incorrect arguments: an even number of arguments is expected");
+        return NULL;
+    }
+    struct _4ti2MinimizeInput data;
+
+    int dim = -1;
+
+    for (int i = 0; i < nargs / 2; ++i) {
+        PyObject *eol1 = PyTuple_GetItem(args, 2*i);
+        if ( !string_check(eol1) ) {
+            PyErr_SetString(Py4ti2Error, "incorrect arguments: odd arguments should be strings");
+            return NULL;
+        }
+        std::string typeofinp = PyUnicodeToString(eol1);
+        
+        PyObject *eol2 = PyTuple_GetItem(args, 2*i+1);
+        if (typeofinp.compare("mat") == 0) {
+            if ( data.mat != 0 ) {
+                data.clearall();
+                PyErr_SetString(Py4ti2Error, "just one \'mat\' argument is possible");
+                return NULL;
+            }
+            data.mat = new _4ti2_::VectorArray();
+            if ( !PyIntListListToVectorArray(eol2, *data.mat) ) {
+                data.clearall();
+                std::string pref = "\'mat\' argument: ";
+                whathappened = pref + whathappened;
+                PyErr_SetString(Py4ti2Error, whathappened.c_str());
+                return NULL;
+            }
+            if (dim >= 0 && dim != data.lat->get_size() ) {
+                data.clearall();
+                PyErr_SetString(Py4ti2Error, "size mismatch in matrix and lattice");
+                return NULL;
+            }
+            else
+                dim = data.mat->get_size();
+        }
+        else if (typeofinp.compare("lat") == 0) {
+            data.lat = new _4ti2_::VectorArray();
+            if ( !PyIntListListToVectorArray(eol2, *data.lat) ) {
+                data.clearall();
+                std::string pref = "\'lat\' argument: ";
+                whathappened = pref + whathappened;
+                PyErr_SetString(Py4ti2Error, whathappened.c_str());
+                return NULL;
+            }
+            if (dim >= 0 && dim != data.mat->get_size() ) {
+                data.clearall();
+                PyErr_SetString(Py4ti2Error, "size mismatch in matrix and lattice");
+                return NULL;
+            }
+            else
+                dim = data.lat->get_size();
+        }
+        else if (typeofinp.compare("sign") == 0) {
+            data.sign = new _4ti2_::Vector(dim);
+            if ( !PyIntListToVector(eol2, *data.sign) ) {
+                data.clearall();
+                std::string pref = "\'sign\' argument: ";
+                whathappened = pref + whathappened;
+                PyErr_SetString(Py4ti2Error, whathappened.c_str());
+                return NULL;
+            }
+        }
+        else if (typeofinp.compare("zsol") == 0) {
+            data.zsol = new _4ti2_::Vector(dim);
+            if ( !PyIntListToVector(eol2, *data.zsol) ) {
+                data.clearall();
+                std::string pref = "\'zsol\' argument: ";
+                whathappened = pref + whathappened;
+                PyErr_SetString(Py4ti2Error, whathappened.c_str());
+                return NULL;
+            }
+        }
+        else if (typeofinp.compare("cost") == 0) {
+            data.cost = new _4ti2_::VectorArray();
+            if ( !PyIntListListToVectorArray(eol2, *data.cost) ) {
+                data.clearall();
+                std::string pref = "\'cost\' argument: ";
+                whathappened = pref + whathappened;
+                PyErr_SetString(Py4ti2Error, whathappened.c_str());
+                return NULL;
+            }
+        }
+        else {
+            data.clearall();
+            PyErr_SetString(Py4ti2Error, "Unexpected argument");
+            return NULL;
+        }
+    }
+    // Tests input data according to input_Feasible.cpp 
+    if ( data.mat == 0 && data.lat == 0 ) {
+        data.clearall();
+        PyErr_SetString(Py4ti2Error, 
+            "a matrix and/or lattice is needed as input data");
+        return NULL;
+    }
+
+    _4ti2_::BitSet urs(dim);
+    if ( data.sign != 0 ) {
+        for (int i = 0; i < dim; ++i) {
+            IntegerType value = (*data.sign)[i];
+            if (value == 0) urs.set(i); 
+            else if (value == 1) { } // Nonnegative variable.
+            else if (value == 2 || value == -1) {
+                data.clearall();
+                PyErr_SetString(Py4ti2Error, 
+                    "some value in sign is not yet supported");
+                return NULL;
+            }
+            else {
+                data.clearall();
+                PyErr_SetString(Py4ti2Error, 
+                    "unsupported number in sign vector");
+                return NULL;
+            }
+        }
+    }
+
+    // Test input according to minimize_main.cpp
+    if ( data.cost == 0 || data.cost->get_number() != 1 ) {
+        data.clearall();
+        PyErr_SetString(Py4ti2Error, 
+            "there should be a single cost function");
+        return NULL;
+    }
+    if ( data.zsol == 0 ) {
+        data.clearall();
+        PyErr_SetString(Py4ti2Error, 
+            "a fiber (zsol) is needed as input data");
+        return NULL;
+    }
+
+    _4ti2_::Feasible *feasible = new _4ti2_::Feasible( data.lat, 
+            data.mat, &urs, data.zsol );
+
+    _4ti2_::Vector sol(*feasible->get_rhs());
+    _4ti2_::Optimise opt;
+    opt.compute( *feasible, (*(data.cost))[0], sol );
+
+    delete feasible;
+    data.clearall();
+    
+    return VectorToPyIntList( sol );
+}
+
 struct _4ti2GroebnerBasisInput {
     _4ti2_::VectorArray *mat, *lat, *weights, *mar, *cost; 
     _4ti2_::Vector *sign, *weightsmax, *zsol;
@@ -969,6 +1140,21 @@ static PyObject *_4ti2NormalForm( PyObject *self, PyObject *args )
                 return NULL;
             }
         }
+    }
+
+    // Test input as in normalform_main.cpp
+    if ( data.gro == 0 ) {
+        data.clearall();
+        PyErr_SetString(Py4ti2Error, 
+            "there should be a Groebner basis input");
+        return NULL;
+    }
+
+    if ( data.feas == 0 ) {
+        data.clearall();
+        PyErr_SetString(Py4ti2Error, 
+            "a list of feasible solutions is needed");
+        return NULL;
     }
 
     _4ti2_::Feasible *feasible = new _4ti2_::Feasible( data.lat, 
@@ -1403,6 +1589,8 @@ static PyMethodDef Py4ti2Methods[] = {
     {"solve", (PyCFunction)_4ti2ParticularSolution, METH_VARARGS, 
         "Computes a particular solution of a linear diophantine equations system" },
 #endif
+    {"minimize", (PyCFunction)_4ti2Minimize, METH_VARARGS, 
+        "Computes de minimal solutions of an integer linear program or, more general, a lattice program, using Groebner basis." },
     {"groebner", (PyCFunction)_4ti2GroebnerBasis, METH_VARARGS, 
         "Computes a Groebner basis of the toric ideal of a matrix, or, more general, of the lattice ideal of a lattice." },
     {"normalform", (PyCFunction)_4ti2NormalForm, METH_VARARGS, 
