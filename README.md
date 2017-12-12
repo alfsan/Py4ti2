@@ -6,7 +6,9 @@ Py4ti2 provides a Python interface to some of the computations performed by 4ti2
 
 By now, it is possible to use:
 
+* minimize,
 * groebner,
+* normalform,
 * hilbert,
 * graver,
 * zsolve
@@ -41,6 +43,17 @@ It is recommended to read the manual page of the corresponding 4ti2 command to k
 
 There is a module **Py4ti2int64** for 64 bit precision architecture, **Py4ti2int32** for 32 bits, and **Py4ti2gmp** for arbitrary precision computations.
 
+### Minimal solution of an integer linear program
+
+```python
+from Py4ti2int32 import *
+
+g=groebner("mat", [[3,5,7]])
+print(minimize("lat", g, "cost", [[1,1,1]], "zsol", [3,6,9], "sign", [1,1,1]))
+
+[2, 1, 13]
+```
+
 
 ### Gröbner bases
 
@@ -74,7 +87,7 @@ print([e for e in r])
 
 ### Normal form
 
-```
+```python
 # 4coins
 from Py4ti2gmp import *
 
@@ -83,6 +96,8 @@ nf=normalform("mat", [[1, 1, 1, 1], [1, 5, 10, 25]],
               "gro", [[-5, 3, 4, -2], [-5, 6, 0, -1],[0, 3, -4, 1], [5, 0, -8, 3]],
               "feas", [[4, 1232534646456456456389274293472974242374234729743, 0, 3]])
 print([e for e in nf])
+
+[[684741470253586920216263496373874579096797072079, 2, 547793176202869536173010797099099663277437657668, 1]]
 ```
 
 ### Hilbert bases
