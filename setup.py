@@ -34,7 +34,7 @@ if os.getenv('_4ti2_HAVE_GMP', None)==None:
 if len(modules)!=0:
     setup(
         name = 'Py4ti2',
-        version = '0.1',
+        version = '0.4',
         description = 'An interface to some 4ti2 functions',
         author = 'Alfredo Sanchez-R.-Navarro',
         author_email = 'alfredo.sanchez@uca.es',
