@@ -31,13 +31,13 @@ endif
 
 all: module3 module2
 
-module3: Py4ti2.cc setup.py
+module3: Py4ti2.cc datatran.cc 4ti2mcnv.cc zsolstuf.cc vecarcnv.cc grobstuf.cc setup.py
 	python3 setup.py build_ext --inplace
 
 module2: Py4ti2.cc setup.py
 	python2 setup.py build_ext --inplace
 
-install: install3 install2
+install: install3
 
 install3: module3
 	python3 setup.py install --user --prefix=
