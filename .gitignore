@@ -2,3 +2,4 @@ Py4ti2*.so
 build
 scratch
 .Makefile.swp
+__pycache__

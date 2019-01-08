@@ -1,5 +1,6 @@
 #include "zsolstuf.h"
-#include "grobstuf.h"
+#include "groestuf.h"
+#include "qsolstuf.h"
 
 #include <Python.h>
 
@@ -21,24 +22,30 @@ static PyMethodDef Py4ti2Methods[] = {
 //    {"solve", (PyCFunction)_4ti2ParticularSolution, METH_VARARGS, 
 //        "Computes a particular solution of a linear diophantine equations system" },
 //#endif
-    {"minimize", (PyCFunction)_4ti2Minimize, METH_VARARGS, 
+    {"_minimize", (PyCFunction)_4ti2Minimize, METH_VARARGS, 
         "Computes de minimal solutions of an integer linear program or, more general, a lattice program, using Groebner basis." },
-    {"groebner", (PyCFunction)_4ti2GroebnerBasis, METH_VARARGS, 
+    {"_groebner", (PyCFunction)_4ti2GroebnerBasis, METH_VARARGS, 
         "Computes a Groebner basis of the toric ideal of a matrix, or, more general, of the lattice ideal of a lattice." },
-    {"normalform", (PyCFunction)_4ti2NormalForm, METH_VARARGS, 
+    {"_normalform", (PyCFunction)_4ti2NormalForm, METH_VARARGS, 
         "Computes the normal form of a list of feasible points." },
-    {"markov", (PyCFunction)_4ti2MarkovBasis, METH_VARARGS, 
+    {"_markov", (PyCFunction)_4ti2MarkovBasis, METH_VARARGS, 
         "Computes a Markov basis (generating set) of the toric ideal of a matrix or, more general, of the lattice ideal of a lattice." },
-    {"zbasis", (PyCFunction)_4ti2ZBasis, METH_VARARGS, 
+    {"_zbasis", (PyCFunction)_4ti2ZBasis, METH_VARARGS, 
         "Computes an integer lattice basis." },
-    {"walk", (PyCFunction)_4ti2Walk, METH_VARARGS, 
+    {"_walk", (PyCFunction)_4ti2Walk, METH_VARARGS, 
         "Computes the minimal solution of an integer linear program or, more general, a lattice program using a Groebner basis." },
-    {"hilbert", (PyCFunction)_4ti2Hilbert, METH_VARARGS,
-        "Computes the Hilbert basis of a matrix or a given lattice"},
-    {"graver", (PyCFunction)_4ti2Graver, METH_VARARGS,
-        "Computes the Graver basis of a matrix or a given lattice"},
-    {"zsolve", (PyCFunction)_4ti2Zsolve, METH_VARARGS,
-        "Solves linear inequality and equation systems over the integers"},
+    {"_hilbert", (PyCFunction)_4ti2Hilbert, METH_VARARGS,
+        "Computes the Hilbert basis of a matrix or a given lattice."},
+    {"_graver", (PyCFunction)_4ti2Graver, METH_VARARGS,
+        "Computes the Graver basis of a matrix or a given lattice."},
+    {"_zsolve", (PyCFunction)_4ti2Zsolve, METH_VARARGS,
+        "Solves linear inequality and equation systems over the integers."},
+    {"_circuits", (PyCFunction)_4ti2Circuits, METH_VARARGS,
+        "Computes the circuits of a cone."},
+    {"_qsolve", (PyCFunction)_4ti2Qsolve, METH_VARARGS,
+        "Computes a generator description of a cone."},
+    {"_rays", (PyCFunction)_4ti2Rays, METH_VARARGS,
+        "Computes the extreme rays of a cone."},
     {NULL, NULL, 0, NULL }        /* Sentinel */
 };
 
@@ -56,7 +63,7 @@ static int Py4ti2_clear(PyObject *m) {
 
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
-        "Py4ti2sol",
+        "Py4ti2_cc",
         NULL,
         sizeof(struct module_state),
         Py4ti2Methods,
@@ -77,11 +84,11 @@ static struct PyModuleDef moduledef = {
 
 #if PY_MAJOR_VERSION >= 3
 
-PyMODINIT_FUNC PyInit_Py4ti2int32(void)
+PyMODINIT_FUNC PyInit_Py4ti2int32_cc(void)
 
 #else
 
-extern "C" void initPy4ti2int32(void)
+extern "C" void initPy4ti2int32_cc(void)
 #endif
 {
 #if PY_MAJOR_VERSION >= 3
@@ -112,11 +119,11 @@ extern "C" void initPy4ti2int32(void)
 
 #if PY_MAJOR_VERSION >= 3
 
-PyMODINIT_FUNC PyInit_Py4ti2int64(void)
+PyMODINIT_FUNC PyInit_Py4ti2int64_cc(void)
 
 #else
 
-extern "C" void initPy4ti2int64(void)
+extern "C" void initPy4ti2int64_cc(void)
 #endif
 {
 #if PY_MAJOR_VERSION >= 3
@@ -147,11 +154,11 @@ extern "C" void initPy4ti2int64(void)
 
 #if PY_MAJOR_VERSION >= 3
 
-PyMODINIT_FUNC PyInit_Py4ti2gmp(void)
+PyMODINIT_FUNC PyInit_Py4ti2gmp_cc(void)
 
 #else
 
-extern "C" void initPy4ti2gmp(void)
+extern "C" void initPy4ti2gmp_cc(void)
 #endif
 {
 #if PY_MAJOR_VERSION >= 3

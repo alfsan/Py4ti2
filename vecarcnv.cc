@@ -101,9 +101,6 @@ bool PyIntListListToVectorArray( PyObject *input, _4ti2_::VectorArray& outva )
         }
         _va.insert( rowv );
     }
-    PySys_WriteStdout("\ntova: %d, %d\n", _va.get_number(), _va.get_size());
-
-    PySys_WriteStdout("\ntova\n");
 
     outva = _va;
     

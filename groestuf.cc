@@ -479,12 +479,21 @@ PyObject *_4ti2Minimize( PyObject *self, PyObject *args )
         return NULL;
     }
 
+    // Suppress GLPK/4ti2 output
+    glp_term_out( GLP_OFF );  
+    std::streambuf *old = std::cout.rdbuf();
+    std::stringstream ss;
+    std::cout.rdbuf( ss.rdbuf() );
+
     _4ti2_::Feasible *feasible = new _4ti2_::Feasible( data.va_data[idx_lat], 
             data.va_data[idx_mat], &urs, data.v_data[idx_zsol] );
 
     _4ti2_::Vector sol(*feasible->get_rhs());
     _4ti2_::Optimise opt;
     opt.compute( *feasible, (*(data.va_data[idx_cost]))[0], sol );
+
+    // Restore normal standard output
+    std::cout.rdbuf( old );
 
     delete feasible;
     
@@ -569,6 +578,11 @@ PyObject *_4ti2GroebnerBasis( PyObject *self, PyObject *args )
         return NULL;
     }
 
+    // Suppress GLPK/4ti2 output
+    glp_term_out( GLP_OFF );  
+    std::streambuf *old = std::cout.rdbuf();
+    std::stringstream ss;
+    std::cout.rdbuf( ss.rdbuf() );
 
     _4ti2_::Feasible *feasible = new _4ti2_::Feasible( data.va_data[idx_lat], 
             data.va_data[idx_mat], &urs, data.v_data[data.v_index("zsol")],
@@ -580,6 +594,9 @@ PyObject *_4ti2GroebnerBasis( PyObject *self, PyObject *args )
     _4ti2_::GroebnerBasis gb(gs, data.va_data[data.va_index("cost")]);
 
     _4ti2_::VectorArray gbe = gb.get_groebner_basis();
+
+    // Restore normal standard output
+    std::cout.rdbuf( old );
 
     delete feasible;
     
@@ -663,6 +680,12 @@ PyObject *_4ti2NormalForm( PyObject *self, PyObject *args )
         return NULL;
     }
 
+    // Suppress GLPK/4ti2 output
+    glp_term_out( GLP_OFF );  
+    std::streambuf *old = std::cout.rdbuf();
+    std::stringstream ss;
+    std::cout.rdbuf( ss.rdbuf() );
+
     _4ti2_::Feasible *feasible = new _4ti2_::Feasible( data.va_data[idx_lat], 
             data.va_data[idx_mat], &urs );
 
@@ -674,6 +697,10 @@ PyObject *_4ti2NormalForm( PyObject *self, PyObject *args )
     _4ti2_::Minimize algorithm;
     algorithm.minimize( *feasible, *(data.va_data[idx_cost]), 
                         *(data.va_data[idx_gro]), *(data.va_data[idx_feas]) );
+
+    // Restore normal standard output
+    std::cout.rdbuf( old );
+
     delete feasible;
 
     PyObject *nf_list = VectorArrayToPyIntListList(*(data.va_data[idx_feas]));
@@ -753,6 +780,12 @@ PyObject *_4ti2MarkovBasis( PyObject *self, PyObject *args )
         return NULL;
     }
 
+    // Suppress GLPK/4ti2 output
+    glp_term_out( GLP_OFF );  
+    std::streambuf *old = std::cout.rdbuf();
+    std::stringstream ss;
+    std::cout.rdbuf( ss.rdbuf() );
+
     _4ti2_::Feasible *feasible = new _4ti2_::Feasible( data.va_data[idx_lat], 
             data.va_data[idx_mat], &urs, data.v_data[data.v_index("zsol")],
             data.va_data[idx_weights], data.v_data[idx_weightsmax] );
@@ -761,6 +794,9 @@ PyObject *_4ti2MarkovBasis( PyObject *self, PyObject *args )
     gs.standardise();
 
     _4ti2_::VectorArray mar = gs.get_generating_set();
+
+    // Restore normal standard output
+    std::cout.rdbuf( old );
 
     delete feasible;
     
@@ -804,9 +840,18 @@ PyObject *_4ti2ZBasis( PyObject *self, PyObject *args )
         return NULL;
     }
     
+    // Suppress GLPK/4ti2 output
+    glp_term_out( GLP_OFF );  
+    std::streambuf *old = std::cout.rdbuf();
+    std::stringstream ss;
+    std::cout.rdbuf( ss.rdbuf() );
+
     _4ti2_::VectorArray zbasis(0, data.va_data[idx_mat]->get_size());
     lattice_basis( *(data.va_data[idx_mat]), zbasis );
     
+    // Restore normal standard output
+    std::cout.rdbuf( old );
+
     if ( zbasis.get_number() > 0 )
         return VectorArrayToPyIntListList( zbasis );
     else
@@ -893,6 +938,12 @@ PyObject *_4ti2Walk( PyObject *self, PyObject *args )
        data.va_data[idx_coststart] = new _4ti2_::VectorArray(0, data.dim);
     }
 
+    // Suppress GLPK/4ti2 output
+    glp_term_out( GLP_OFF );  
+    std::streambuf *old = std::cout.rdbuf();
+    std::stringstream ss;
+    std::cout.rdbuf( ss.rdbuf() );
+
     _4ti2_::Feasible *feasible = new _4ti2_::Feasible( data.va_data[idx_lat], 
             data.va_data[idx_mat], &urs, data.v_data[data.v_index("zsol")] );
 
@@ -900,6 +951,9 @@ PyObject *_4ti2Walk( PyObject *self, PyObject *args )
     algorithm.compute( *feasible, *(data.va_data[idx_coststart]), 
                         *(data.va_data[idx_grostart]), 
                         *(data.va_data[idx_cost]) );
+
+    // Restore normal standard output
+    std::cout.rdbuf( old );
 
     delete feasible;
     
