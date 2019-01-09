@@ -56,7 +56,7 @@ We present some cases of use using 4ti2's distribution test data.
 ### Minimal solution of an integer linear program
 
 ```python
-form Py4ti2int32 import *
+from Py4ti2int32 import *
 
 g=groebner(mat=[[3,5,7]])
 print(minimize(lat=g, cost=[[1,1,1]], zsol=[3,6,9], sign=[1,1,1]))
