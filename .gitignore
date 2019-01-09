@@ -3,4 +3,3 @@ build
 scratch
 .Makefile.swp
 __pycache__
-.gitignore
