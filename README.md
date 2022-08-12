@@ -2,7 +2,7 @@
 
 ## What is Py4ti2
 
-Py4ti2 provides a Python interface to some of the computations performed by 4ti2 (http://www.4ti2.de).
+Py4ti2 provides a Python interface to some of the computations performed by 4ti2 (https://4ti2.github.io/).
 
 By now, it is possible to use:
 
