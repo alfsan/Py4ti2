@@ -13,6 +13,7 @@ ifndef FTI2_DIR
 	$(info FTI2_DIR variable undefined)
 endif
 
+export CC=x86_64-linux-gnu-g++
 export CFLAGS=-I $(GLPK_DIR)/include -I $(FTI2_DIR)/include 
 export LDFLAGS=-L $(GLPK_DIR)/lib -L $(FTI2_DIR)/lib
 
@@ -40,10 +41,10 @@ module2: Py4ti2.cc datatran.cc 4ti2mcnv.cc zsolstuf.cc vecarcnv.cc groestuf.cc q
 install: install3
 
 install3: module3
-	python3.7 setup.py install --user --prefix=
+	python3 -m pip install -r requirements.txt --user --prefix=
 
 install2: module2
-	python2 setup.py install --user --prefix=
+	python2 -m pip install -r requirements.txt --user --prefix=
 
 clean:
 	rm -rf Py4ti2*.so build
