@@ -319,7 +319,7 @@ struct VecAr_InputData {
             std::string strit(i_t);
             ret = str_v_map.at(strit);
         }
-        catch (std::out_of_range e) {
+        catch (std::out_of_range& e) {
             return -1;
         }
         return ret;
@@ -331,7 +331,7 @@ struct VecAr_InputData {
             std::string strit(i_t);
             ret = str_va_map.at(strit);
         }
-        catch (std::out_of_range e) {
+        catch (std::out_of_range& e) {
             return -1;
         }
         return ret;
