@@ -41,10 +41,10 @@ module2: Py4ti2.cc datatran.cc 4ti2mcnv.cc zsolstuf.cc vecarcnv.cc groestuf.cc q
 install: install3
 
 install3: module3
-	python3 -m pip install -r requirements.txt --user --prefix=
+	python3 -m pip install setuptools --user 
 
 install2: module2
-	python2 -m pip install -r requirements.txt --user --prefix=
+	python2 -m pip install setuptools --user 
 
 clean:
 	rm -rf Py4ti2*.so build
