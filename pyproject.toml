@@ -1,3 +1,27 @@
 [build-system]
 requires = ['setuptools']
 build-backend = "setuptools.build_meta"
+
+[project]
+requires-python = ">=3.9"
+name = "Py4ti2"
+version = "0.5"
+description = "An interface to some 4ti2 functions"
+urls = {Homepage = "https://github.com/alfsan/Py4ti2"}
+authors = [{name = "Alfredo Sanchez-R.-Navarro", email = "alfredo.sanchez@uca.es"}]
+readme = {file = "README.md", content-type = "text/markdown"}
+license = "GPL-2.0-only"
+
+
+[tool.setuptools]
+ext-modules = [
+  {name = "Py4ti2int32_cc", sources = ["Py4ti2.cc", "datatran.cc", "4ti2mcnv.cc", 
+  "zsolstuf.cc", "vecarcnv.cc", "groestuf.cc", 
+  "qsolstuf.cc"]},
+  {name = "Py4ti2int64_cc", sources = [ "Py4ti2.cc", "datatran.cc", "4ti2mcnv.cc", 
+  "zsolstuf.cc", "vecarcnv.cc", "groestuf.cc", 
+  "qsolstuf.cc"]},
+  {name = "Py4ti2gmp_cc", sources = [ "Py4ti2.cc", "datatran.cc", "4ti2mcnv.cc", 
+  "zsolstuf.cc", "vecarcnv.cc", "groestuf.cc", 
+  "qsolstuf.cc" ]}
+]

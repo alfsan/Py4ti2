@@ -40,9 +40,11 @@ bool PyIntListListTo4ti2matrix( PyObject *input, _4ti2_state* state,
         return false;
     }
 #ifdef _4ti2_INT32_
-    _4ti2_int32_t value;
+//    _4ti2_int32_t value;
+    int32_t value;
 #elif defined(_4ti2_INT64_)
-    _4ti2_int64_t value;
+//    _4ti2_int64_t value;
+    int64_t value;
 #elif defined(_4ti2_HAVE_GMP)
     mpz_class value;
     mpz_ptr ptrvalue = value.get_mpz_t();
@@ -96,9 +98,11 @@ bool PyIntListTo4ti2matrix( PyObject *input, _4ti2_state* state,
         return false;
     }
 #ifdef _4ti2_INT32_
-    _4ti2_int32_t value;
+//    _4ti2_int32_t value;
+    int32_t value;
 #elif defined(_4ti2_INT64_)
-    _4ti2_int64_t value;
+//    _4ti2_int64_t value;
+    int64_t value;
 #elif defined(_4ti2_HAVE_GMP)
     mpz_class value;
     mpz_ptr ptrvalue = value.get_mpz_t();
@@ -130,9 +134,11 @@ PyObject *_4ti2matrixToPyIntListList( _4ti2_matrix *m )
     const int ncols = _4ti2_matrix_get_num_cols( m );
 
 #ifdef _4ti2_INT32_
-    _4ti2_int32_t value;
+//    _4ti2_int32_t value;
+    int32_t value;
 #elif defined(_4ti2_INT64_)
-    _4ti2_int64_t value;
+//    _4ti2_int64_t value;
+    int64_t value;
 #elif defined(_4ti2_HAVE_GMP)
     mpz_class value;
     mpz_ptr ptrvalue = value.get_mpz_t();

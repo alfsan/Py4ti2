@@ -3,3 +3,6 @@ build
 scratch
 .Makefile.swp
 __pycache__
+dist
+Py4ti2.egg-info
+*.no

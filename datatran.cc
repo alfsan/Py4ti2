@@ -1,6 +1,6 @@
 #include <Python.h>
 
-#include <iostream>
+// #include <iostream>
 #include <string>
 
 #include "groebner/Vector.h"
@@ -20,7 +20,7 @@ std::string whathappened;
 std::string PyUnicodeToString( PyObject* in ){
 #if PY_MAJOR_VERSION >= 3
     std::string out = "";
-    int length = PyUnicode_GET_SIZE( in );
+    int length = PyUnicode_GET_LENGTH( in );
     for( int i = 0; i < length; ++i )
         out += PyUnicode_READ_CHAR( in, i );
     return out;

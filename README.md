@@ -19,29 +19,33 @@ By now, it is possible to use:
 * rays,
 * qsolve
 
-This software is inspired in Sebastian Gutsche's PyNormaliz (https://github.com/Normaliz/PyNormaliz) and reuses some of its data transformation code.
+This software is inspired in PyNormaliz (https://github.com/Normaliz/PyNormaliz) and reuses some of its data transformation code.
 
 ## Requirements and installation 
 
-First, 4ti2 is required with the groebner and zsolve components enabled. As well, GLPK (https://www.gnu.org/software/glpk/) is needed by 4ti2. Both library folders should be specified to build Py4ti2. 
+First, 4ti2 is required with the groebner and zsolve components enabled. As well, GLPK (https://www.gnu.org/software/glpk/) is needed by 4ti2. GMP (https://gmplib.org/) is recommended. 4ti2 library folder should be specified to build Py4ti2, GLPK and GMP are expected to be installed in a default path, otherwise, use CPPFLAGS and LDFLAGS to specify compiler and linker information on those libraries.
 
-For GNU/Linux or OSX users, open a ``terminal window'', select Py4ti2 as working directory to introduce the make command to build the Py4ti2 modules.
+For GNU/Linux or OSX users, open a ``terminal window'', select Py4ti2 as working directory to introduce the  command to build the Py4ti2 modules.
 
 ```shell
-
 your_prompt$ cd WHERE_Py4ti2_IS_LOCATED
-
 ```
 
-The variables GLPK_DIR and FTI2_DIR are used to provide the path where GLPK and 4ti2 libraries are installed.
+The variable FTI2_DIR is used to provide the path where 4ti2 libraries are installed.
 
-The make command to build and install the modules could be:
+Then execute the following to build:
 
 ```shell
-
-prompt...Py4ti2$ GLPK_DIR=ROOT_OF_GLPK_INSTALLATION_HIERARCHY FTI2_DIR=ROOT_OF_4ti2_INSTALLATION_HIERARCHY make install
-
+prompt...Py4ti2$ FTI2_DIR=ROOT_OF_4ti2_INSTALLATION_HIERARCHY python3 -m build .
 ```
+
+On success, use this to install the package:
+
+```shell
+prompt...Py4ti2$ pip install dist/dist/py4ti2-0.5.tar.gz
+```
+
+
 
 ## Documentation
 
