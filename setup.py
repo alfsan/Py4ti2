@@ -72,9 +72,8 @@ if check_4ti2_prec("HAVE_GMP") == "no":
     modules_cc.remove(modulegmp)
     print("Py4ti2gmp will not be built")
 
-if len(modules_cc)!=0:
-    setup(
-        py_modules = modules_py, 
-        ext_modules = modules_cc,
-        package_data = {'': [ "COPYING", "GPLv2", "README.md" ] }
-    )
+setup(
+    py_modules = modules_py, 
+    ext_modules = modules_cc,
+    package_data = {'': [ "COPYING", "GPLv2", "README.md" ] }
+)
