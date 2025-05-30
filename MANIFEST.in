@@ -1,1 +1,2 @@
 include *.h *.cc
+include Py4ti2*.py
