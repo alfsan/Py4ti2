@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 requires-python = ">=3.9"
 name = "Py4ti2"
-version = "0.5"
+version = "0.5.1"
 description = "An interface to some 4ti2 functions"
 urls = {Homepage = "https://github.com/alfsan/Py4ti2"}
 authors = [{name = "Alfredo Sanchez-R.-Navarro", email = "alfredo.sanchez@uca.es"}]
